@@ -34,7 +34,7 @@ public class Reservation
     [ForeignKey("Restaurant")]
     public int IdRestaurant { get; set; }
 
-    public Utilisateur Utilisateur { get; set; }
-    public TableRestaurant TableRestaurant { get; set; }
-    public Restaurant Restaurant { get; set; }
+    public Utilisateur? Utilisateur { get; set; }
+    public TableRestaurant? TableRestaurant { get; set; }
+    public Restaurant? Restaurant { get; set; }
 }

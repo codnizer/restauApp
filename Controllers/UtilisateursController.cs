@@ -1,96 +1,138 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-[Route("api/[controller]")]
-[ApiController]
-public class UtilisateursController : ControllerBase
+namespace RestauApp
 {
-    private readonly ApplicationDbContext _context;
-
-    public UtilisateursController(ApplicationDbContext context)
+    public class UtilisateursController : Controller
     {
-        _context = context;
-    }
+        private readonly ApplicationDbContext _context;
 
-    // GET: api/Utilisateurs
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<Utilisateur>>> GetUtilisateurs()
-    {
-        return await _context.Utilisateurs.ToListAsync();
-    }
-
-    // GET: api/Utilisateurs/5
-    [HttpGet("{id}")]
-    public async Task<ActionResult<Utilisateur>> GetUtilisateur(int id)
-    {
-        var utilisateur = await _context.Utilisateurs.FindAsync(id);
-
-        if (utilisateur == null)
+        public UtilisateursController(ApplicationDbContext context)
         {
-            return NotFound();
+            _context = context;
         }
 
-        return utilisateur;
-    }
-
-    // PUT: api/Utilisateurs/5
-    [HttpPut("{id}")]
-    public async Task<IActionResult> PutUtilisateur(int id, Utilisateur utilisateur)
-    {
-        if (id != utilisateur.IdUtilisateur)
+        // GET: Utilisateurs
+        public async Task<IActionResult> Index()
         {
-            return BadRequest();
+            var utilisateurs = await _context.Utilisateurs.ToListAsync();
+            return View(utilisateurs);
         }
 
-        _context.Entry(utilisateur).State = EntityState.Modified;
-
-        try
+        // GET: Utilisateurs/Details/5
+        public async Task<IActionResult> Details(int? id)
         {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!UtilisateurExists(id))
-            {
+            if (id == null)
                 return NotFound();
-            }
-            else
-            {
-                throw;
-            }
+
+            var utilisateur = await _context.Utilisateurs
+                .FirstOrDefaultAsync(m => m.IdUtilisateur == id);
+
+            if (utilisateur == null)
+                return NotFound();
+
+            return View(utilisateur);
         }
 
-        return NoContent();
-    }
-
-    // POST: api/Utilisateurs
-    [HttpPost]
-    public async Task<ActionResult<Utilisateur>> PostUtilisateur(Utilisateur utilisateur)
-    {
-        _context.Utilisateurs.Add(utilisateur);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction("GetUtilisateur", new { id = utilisateur.IdUtilisateur }, utilisateur);
-    }
-
-    // DELETE: api/Utilisateurs/5
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteUtilisateur(int id)
-    {
-        var utilisateur = await _context.Utilisateurs.FindAsync(id);
-        if (utilisateur == null)
+        // GET: Utilisateurs/Create
+        public IActionResult Create()
         {
-            return NotFound();
+            return View();
         }
 
-        _context.Utilisateurs.Remove(utilisateur);
-        await _context.SaveChangesAsync();
+        // POST: Utilisateurs/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("IdUtilisateur,Nom,Prenom,Email,Telephone,MotDePasse,ProgrammeFidelite")] Utilisateur utilisateur)
+        {
+            if (!ModelState.IsValid)
+            {
+                // Optional: Add model error logging here
+                return View(utilisateur);
+            }
 
-        return NoContent();
-    }
+            _context.Add(utilisateur);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
 
-    private bool UtilisateurExists(int id)
-    {
-        return _context.Utilisateurs.Any(e => e.IdUtilisateur == id);
+        // GET: Utilisateurs/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+                return NotFound();
+
+            var utilisateur = await _context.Utilisateurs.FindAsync(id);
+            if (utilisateur == null)
+                return NotFound();
+
+            return View(utilisateur);
+        }
+
+        // POST: Utilisateurs/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("IdUtilisateur,Nom,Prenom,Email,Telephone,MotDePasse,ProgrammeFidelite")] Utilisateur utilisateur)
+        {
+            if (id != utilisateur.IdUtilisateur)
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return View(utilisateur);
+
+            try
+            {
+                _context.Update(utilisateur);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!UtilisateurExists(utilisateur.IdUtilisateur))
+                    return NotFound();
+                else
+                    throw;
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Utilisateurs/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+                return NotFound();
+
+            var utilisateur = await _context.Utilisateurs
+                .FirstOrDefaultAsync(m => m.IdUtilisateur == id);
+
+            if (utilisateur == null)
+                return NotFound();
+
+            return View(utilisateur);
+        }
+
+        // POST: Utilisateurs/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var utilisateur = await _context.Utilisateurs.FindAsync(id);
+            if (utilisateur != null)
+            {
+                _context.Utilisateurs.Remove(utilisateur);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool UtilisateurExists(int id)
+        {
+            return _context.Utilisateurs.Any(e => e.IdUtilisateur == id);
+        }
     }
 }

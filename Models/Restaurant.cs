@@ -27,8 +27,8 @@ public class Restaurant
     public string Photo { get; set; }
     public string Menu { get; set; }
 
-    public ICollection<Salle> Salles { get; set; }
-    public ICollection<Reservation> Reservations { get; set; }
-    public ICollection<Avis> Avis { get; set; }
-    public ICollection<Employe> Employes { get; set; }
+    public ICollection<Salle> Salles { get; set; } = new List<Salle>();
+    public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
+    public ICollection<Avis> Avis { get; set; } = new List<Avis>();
+    public ICollection<Employe> Employes { get; set; } = new List<Employe>();
 }

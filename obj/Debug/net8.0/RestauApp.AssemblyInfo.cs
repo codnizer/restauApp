@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RestauApp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+60322ce4f9fc9c739c07b561c1ed6f567ab5ac6f")]
 [assembly: System.Reflection.AssemblyProductAttribute("RestauApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RestauApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

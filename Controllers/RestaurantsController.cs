@@ -1,96 +1,147 @@
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
-[Route("api/[controller]")]
-[ApiController]
-public class RestaurantsController : ControllerBase
+namespace RestauApp
 {
-    private readonly ApplicationDbContext _context;
-
-    public RestaurantsController(ApplicationDbContext context)
+    public class RestaurantsController : Controller
     {
-        _context = context;
-    }
+        private readonly ApplicationDbContext _context;
+        private readonly ILogger<RestaurantsController> _logger;
 
-    // GET: api/Restaurants
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<Restaurant>>> GetRestaurants()
-    {
-        return await _context.Restaurants.ToListAsync();
-    }
-
-    // GET: api/Restaurants/5
-    [HttpGet("{id}")]
-    public async Task<ActionResult<Restaurant>> GetRestaurant(int id)
-    {
-        var restaurant = await _context.Restaurants.FindAsync(id);
-
-        if (restaurant == null)
+        public RestaurantsController(ApplicationDbContext context, ILogger<RestaurantsController> logger)
         {
-            return NotFound();
+            _context = context;
+            _logger = logger;
         }
 
-        return restaurant;
-    }
-
-    // PUT: api/Restaurants/5
-    [HttpPut("{id}")]
-    public async Task<IActionResult> PutRestaurant(int id, Restaurant restaurant)
-    {
-        if (id != restaurant.IdRestaurant)
+        // GET: Restaurants
+        public async Task<IActionResult> Index()
         {
-            return BadRequest();
+            return View(await _context.Restaurants.ToListAsync());
         }
 
-        _context.Entry(restaurant).State = EntityState.Modified;
-
-        try
+        // GET: Restaurants/Details/5
+        public async Task<IActionResult> Details(int? id)
         {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!RestaurantExists(id))
-            {
+            if (id == null)
                 return NotFound();
-            }
-            else
-            {
-                throw;
-            }
+
+            var restaurant = await _context.Restaurants
+                .FirstOrDefaultAsync(m => m.IdRestaurant == id);
+
+            if (restaurant == null)
+                return NotFound();
+
+            return View(restaurant);
         }
 
-        return NoContent();
-    }
-
-    // POST: api/Restaurants
-    [HttpPost]
-    public async Task<ActionResult<Restaurant>> PostRestaurant(Restaurant restaurant)
-    {
-        _context.Restaurants.Add(restaurant);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction("GetRestaurant", new { id = restaurant.IdRestaurant }, restaurant);
-    }
-
-    // DELETE: api/Restaurants/5
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteRestaurant(int id)
-    {
-        var restaurant = await _context.Restaurants.FindAsync(id);
-        if (restaurant == null)
+        // GET: Restaurants/Create
+        public IActionResult Create()
         {
-            return NotFound();
+            return View();
         }
 
-        _context.Restaurants.Remove(restaurant);
-        await _context.SaveChangesAsync();
+        // POST: Restaurants/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("IdRestaurant,Nom,Adresse,Telephone,Email,Horaires,Description,Photo,Menu")] Restaurant restaurant)
+        {
+            if (!ModelState.IsValid)
+            {
+                // Log all validation errors
+                foreach (var modelState in ModelState)
+                {
+                    foreach (var error in modelState.Value.Errors)
+                    {
+                        _logger.LogWarning($"Validation error in '{modelState.Key}': {error.ErrorMessage}");
+                    }
+                }
 
-        return NoContent();
-    }
+                return View(restaurant);
+            }
 
-    private bool RestaurantExists(int id)
-    {
-        return _context.Restaurants.Any(e => e.IdRestaurant == id);
+            _context.Add(restaurant);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Restaurants/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+                return NotFound();
+
+            var restaurant = await _context.Restaurants.FindAsync(id);
+            if (restaurant == null)
+                return NotFound();
+
+            return View(restaurant);
+        }
+
+        // POST: Restaurants/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("IdRestaurant,Nom,Adresse,Telephone,Email,Horaires,Description,Photo,Menu")] Restaurant restaurant)
+        {
+            if (id != restaurant.IdRestaurant)
+                return NotFound();
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(restaurant);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!RestaurantExists(restaurant.IdRestaurant))
+                        return NotFound();
+                    else
+                        throw;
+                }
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(restaurant);
+        }
+
+        // GET: Restaurants/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+                return NotFound();
+
+            var restaurant = await _context.Restaurants
+                .FirstOrDefaultAsync(m => m.IdRestaurant == id);
+
+            if (restaurant == null)
+                return NotFound();
+
+            return View(restaurant);
+        }
+
+        // POST: Restaurants/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var restaurant = await _context.Restaurants.FindAsync(id);
+            if (restaurant != null)
+                _context.Restaurants.Remove(restaurant);
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool RestaurantExists(int id)
+        {
+            return _context.Restaurants.Any(e => e.IdRestaurant == id);
+        }
     }
 }

@@ -29,6 +29,6 @@ public class Utilisateur
 
     public int ProgrammeFidelite { get; set; } = 0;
 
-    public ICollection<Reservation> Reservations { get; set; }
-    public ICollection<Avis> Avis { get; set; }
+    public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
+    public ICollection<Avis> Avis { get; set; } = new List<Avis>();
 }

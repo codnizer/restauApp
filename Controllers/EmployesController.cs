@@ -1,105 +1,162 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
-[Route("api/[controller]")]
-[ApiController]
-public class EmployesController : ControllerBase
+namespace RestauApp
 {
-    private readonly ApplicationDbContext _context;
-
-    public EmployesController(ApplicationDbContext context)
+    public class EmployesController : Controller
     {
-        _context = context;
-    }
+        private readonly ApplicationDbContext _context;
 
-    // GET: api/Employes
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<Employe>>> GetEmployes()
-    {
-        return await _context.Employes.ToListAsync();
-    }
-
-    // GET: api/Employes/5
-    [HttpGet("{id}")]
-    public async Task<ActionResult<Employe>> GetEmploye(int id)
-    {
-        var employe = await _context.Employes.FindAsync(id);
-
-        if (employe == null)
+        public EmployesController(ApplicationDbContext context)
         {
-            return NotFound();
+            _context = context;
         }
 
-        return employe;
-    }
-
-    // GET: api/Employes/ByRestaurant/5
-    [HttpGet("ByRestaurant/{restaurantId}")]
-    public async Task<ActionResult<IEnumerable<Employe>>> GetEmployesByRestaurant(int restaurantId)
-    {
-        return await _context.Employes
-            .Where(e => e.IdRestaurant == restaurantId)
-            .ToListAsync();
-    }
-
-    // PUT: api/Employes/5
-    [HttpPut("{id}")]
-    public async Task<IActionResult> PutEmploye(int id, Employe employe)
-    {
-        if (id != employe.IdEmploye)
+        // GET: Employes
+        public async Task<IActionResult> Index()
         {
-            return BadRequest();
+            var applicationDbContext = _context.Employes.Include(e => e.Restaurant);
+            return View(await applicationDbContext.ToListAsync());
         }
 
-        _context.Entry(employe).State = EntityState.Modified;
-
-        try
+        // GET: Employes/Details/5
+        public async Task<IActionResult> Details(int? id)
         {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!EmployeExists(id))
+            if (id == null)
             {
                 return NotFound();
             }
-            else
+
+            var employe = await _context.Employes
+                .Include(e => e.Restaurant)
+                .FirstOrDefaultAsync(m => m.IdEmploye == id);
+            if (employe == null)
             {
-                throw;
+                return NotFound();
             }
+
+            return View(employe);
         }
 
-        return NoContent();
-    }
-
-    // POST: api/Employes
-    [HttpPost]
-    public async Task<ActionResult<Employe>> PostEmploye(Employe employe)
-    {
-        _context.Employes.Add(employe);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction("GetEmploye", new { id = employe.IdEmploye }, employe);
-    }
-
-    // DELETE: api/Employes/5
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteEmploye(int id)
-    {
-        var employe = await _context.Employes.FindAsync(id);
-        if (employe == null)
+        // GET: Employes/Create
+        public IActionResult Create()
         {
-            return NotFound();
+            ViewData["IdRestaurant"] = new SelectList(_context.Restaurants, "IdRestaurant", "Adresse");
+            return View();
         }
 
-        _context.Employes.Remove(employe);
-        await _context.SaveChangesAsync();
+        // POST: Employes/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("IdEmploye,Nom,Prenom,Role,IdRestaurant,TablesAssignees")] Employe employe)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(employe);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["IdRestaurant"] = new SelectList(_context.Restaurants, "IdRestaurant", "Adresse", employe.IdRestaurant);
+            return View(employe);
+        }
 
-        return NoContent();
-    }
+        // GET: Employes/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
 
-    private bool EmployeExists(int id)
-    {
-        return _context.Employes.Any(e => e.IdEmploye == id);
+            var employe = await _context.Employes.FindAsync(id);
+            if (employe == null)
+            {
+                return NotFound();
+            }
+            ViewData["IdRestaurant"] = new SelectList(_context.Restaurants, "IdRestaurant", "Adresse", employe.IdRestaurant);
+            return View(employe);
+        }
+
+        // POST: Employes/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("IdEmploye,Nom,Prenom,Role,IdRestaurant,TablesAssignees")] Employe employe)
+        {
+            if (id != employe.IdEmploye)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(employe);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!EmployeExists(employe.IdEmploye))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["IdRestaurant"] = new SelectList(_context.Restaurants, "IdRestaurant", "Adresse", employe.IdRestaurant);
+            return View(employe);
+        }
+
+        // GET: Employes/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var employe = await _context.Employes
+                .Include(e => e.Restaurant)
+                .FirstOrDefaultAsync(m => m.IdEmploye == id);
+            if (employe == null)
+            {
+                return NotFound();
+            }
+
+            return View(employe);
+        }
+
+        // POST: Employes/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var employe = await _context.Employes.FindAsync(id);
+            if (employe != null)
+            {
+                _context.Employes.Remove(employe);
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool EmployeExists(int id)
+        {
+            return _context.Employes.Any(e => e.IdEmploye == id);
+        }
     }
 }

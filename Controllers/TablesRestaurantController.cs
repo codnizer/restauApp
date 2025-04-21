@@ -1,105 +1,162 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
-[Route("api/[controller]")]
-[ApiController]
-public class TablesRestaurantController : ControllerBase
+namespace RestauApp
 {
-    private readonly ApplicationDbContext _context;
-
-    public TablesRestaurantController(ApplicationDbContext context)
+    public class TablesRestaurantController : Controller
     {
-        _context = context;
-    }
+        private readonly ApplicationDbContext _context;
 
-    // GET: api/TablesRestaurant
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<TableRestaurant>>> GetTablesRestaurant()
-    {
-        return await _context.TablesRestaurant.ToListAsync();
-    }
-
-    // GET: api/TablesRestaurant/5
-    [HttpGet("{id}")]
-    public async Task<ActionResult<TableRestaurant>> GetTableRestaurant(int id)
-    {
-        var tableRestaurant = await _context.TablesRestaurant.FindAsync(id);
-
-        if (tableRestaurant == null)
+        public TablesRestaurantController(ApplicationDbContext context)
         {
-            return NotFound();
+            _context = context;
         }
 
-        return tableRestaurant;
-    }
-
-    // GET: api/TablesRestaurant/BySalle/5
-    [HttpGet("BySalle/{salleId}")]
-    public async Task<ActionResult<IEnumerable<TableRestaurant>>> GetTablesBySalle(int salleId)
-    {
-        return await _context.TablesRestaurant
-            .Where(t => t.IdSalle == salleId)
-            .ToListAsync();
-    }
-
-    // PUT: api/TablesRestaurant/5
-    [HttpPut("{id}")]
-    public async Task<IActionResult> PutTableRestaurant(int id, TableRestaurant tableRestaurant)
-    {
-        if (id != tableRestaurant.IdTable)
+        // GET: TablesRestaurant
+        public async Task<IActionResult> Index()
         {
-            return BadRequest();
+            var applicationDbContext = _context.TablesRestaurant.Include(t => t.Salle);
+            return View(await applicationDbContext.ToListAsync());
         }
 
-        _context.Entry(tableRestaurant).State = EntityState.Modified;
-
-        try
+        // GET: TablesRestaurant/Details/5
+        public async Task<IActionResult> Details(int? id)
         {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!TableRestaurantExists(id))
+            if (id == null)
             {
                 return NotFound();
             }
-            else
+
+            var tableRestaurant = await _context.TablesRestaurant
+                .Include(t => t.Salle)
+                .FirstOrDefaultAsync(m => m.IdTable == id);
+            if (tableRestaurant == null)
             {
-                throw;
+                return NotFound();
             }
+
+            return View(tableRestaurant);
         }
 
-        return NoContent();
-    }
-
-    // POST: api/TablesRestaurant
-    [HttpPost]
-    public async Task<ActionResult<TableRestaurant>> PostTableRestaurant(TableRestaurant tableRestaurant)
-    {
-        _context.TablesRestaurant.Add(tableRestaurant);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction("GetTableRestaurant", new { id = tableRestaurant.IdTable }, tableRestaurant);
-    }
-
-    // DELETE: api/TablesRestaurant/5
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteTableRestaurant(int id)
-    {
-        var tableRestaurant = await _context.TablesRestaurant.FindAsync(id);
-        if (tableRestaurant == null)
+        // GET: TablesRestaurant/Create
+        public IActionResult Create()
         {
-            return NotFound();
+            ViewData["IdSalle"] = new SelectList(_context.Salles, "IdSalle", "Nom");
+            return View();
         }
 
-        _context.TablesRestaurant.Remove(tableRestaurant);
-        await _context.SaveChangesAsync();
+        // POST: TablesRestaurant/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("IdTable,Numero,IdSalle")] TableRestaurant tableRestaurant)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(tableRestaurant);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["IdSalle"] = new SelectList(_context.Salles, "IdSalle", "Nom", tableRestaurant.IdSalle);
+            return View(tableRestaurant);
+        }
 
-        return NoContent();
-    }
+        // GET: TablesRestaurant/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
 
-    private bool TableRestaurantExists(int id)
-    {
-        return _context.TablesRestaurant.Any(e => e.IdTable == id);
+            var tableRestaurant = await _context.TablesRestaurant.FindAsync(id);
+            if (tableRestaurant == null)
+            {
+                return NotFound();
+            }
+            ViewData["IdSalle"] = new SelectList(_context.Salles, "IdSalle", "Nom", tableRestaurant.IdSalle);
+            return View(tableRestaurant);
+        }
+
+        // POST: TablesRestaurant/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("IdTable,Numero,IdSalle")] TableRestaurant tableRestaurant)
+        {
+            if (id != tableRestaurant.IdTable)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(tableRestaurant);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!TableRestaurantExists(tableRestaurant.IdTable))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["IdSalle"] = new SelectList(_context.Salles, "IdSalle", "Nom", tableRestaurant.IdSalle);
+            return View(tableRestaurant);
+        }
+
+        // GET: TablesRestaurant/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var tableRestaurant = await _context.TablesRestaurant
+                .Include(t => t.Salle)
+                .FirstOrDefaultAsync(m => m.IdTable == id);
+            if (tableRestaurant == null)
+            {
+                return NotFound();
+            }
+
+            return View(tableRestaurant);
+        }
+
+        // POST: TablesRestaurant/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var tableRestaurant = await _context.TablesRestaurant.FindAsync(id);
+            if (tableRestaurant != null)
+            {
+                _context.TablesRestaurant.Remove(tableRestaurant);
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool TableRestaurantExists(int id)
+        {
+            return _context.TablesRestaurant.Any(e => e.IdTable == id);
+        }
     }
 }

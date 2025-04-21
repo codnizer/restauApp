@@ -1,114 +1,174 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
-[Route("api/[controller]")]
-[ApiController]
-public class ReservationsController : ControllerBase
+namespace RestauApp
 {
-    private readonly ApplicationDbContext _context;
-
-    public ReservationsController(ApplicationDbContext context)
+    public class ReservationsController : Controller
     {
-        _context = context;
-    }
+        private readonly ApplicationDbContext _context;
 
-    // GET: api/Reservations
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<Reservation>>> GetReservations()
-    {
-        return await _context.Reservations.ToListAsync();
-    }
-
-    // GET: api/Reservations/5
-    [HttpGet("{id}")]
-    public async Task<ActionResult<Reservation>> GetReservation(int id)
-    {
-        var reservation = await _context.Reservations.FindAsync(id);
-
-        if (reservation == null)
+        public ReservationsController(ApplicationDbContext context)
         {
-            return NotFound();
+            _context = context;
         }
 
-        return reservation;
-    }
-
-    // GET: api/Reservations/ByUser/5
-    [HttpGet("ByUser/{userId}")]
-    public async Task<ActionResult<IEnumerable<Reservation>>> GetReservationsByUser(int userId)
-    {
-        return await _context.Reservations
-            .Where(r => r.IdUtilisateur == userId)
-            .ToListAsync();
-    }
-
-    // GET: api/Reservations/ByRestaurant/5
-    [HttpGet("ByRestaurant/{restaurantId}")]
-    public async Task<ActionResult<IEnumerable<Reservation>>> GetReservationsByRestaurant(int restaurantId)
-    {
-        return await _context.Reservations
-            .Where(r => r.IdRestaurant == restaurantId)
-            .ToListAsync();
-    }
-
-    // PUT: api/Reservations/5
-    [HttpPut("{id}")]
-    public async Task<IActionResult> PutReservation(int id, Reservation reservation)
-    {
-        if (id != reservation.IdReservation)
+        // GET: Reservations
+        public async Task<IActionResult> Index()
         {
-            return BadRequest();
+            var applicationDbContext = _context.Reservations.Include(r => r.Restaurant).Include(r => r.TableRestaurant).Include(r => r.Utilisateur);
+            return View(await applicationDbContext.ToListAsync());
         }
 
-        _context.Entry(reservation).State = EntityState.Modified;
-
-        try
+        // GET: Reservations/Details/5
+        public async Task<IActionResult> Details(int? id)
         {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!ReservationExists(id))
+            if (id == null)
             {
                 return NotFound();
             }
-            else
+
+            var reservation = await _context.Reservations
+                .Include(r => r.Restaurant)
+                .Include(r => r.TableRestaurant)
+                .Include(r => r.Utilisateur)
+                .FirstOrDefaultAsync(m => m.IdReservation == id);
+            if (reservation == null)
             {
-                throw;
+                return NotFound();
             }
+
+            return View(reservation);
         }
 
-        return NoContent();
-    }
-
-    // POST: api/Reservations
-    [HttpPost]
-    public async Task<ActionResult<Reservation>> PostReservation(Reservation reservation)
-    {
-        _context.Reservations.Add(reservation);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction("GetReservation", new { id = reservation.IdReservation }, reservation);
-    }
-
-    // DELETE: api/Reservations/5
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteReservation(int id)
-    {
-        var reservation = await _context.Reservations.FindAsync(id);
-        if (reservation == null)
+        // GET: Reservations/Create
+        public IActionResult Create()
         {
-            return NotFound();
+            ViewData["IdRestaurant"] = new SelectList(_context.Restaurants, "IdRestaurant", "Adresse");
+            ViewData["IdTable"] = new SelectList(_context.TablesRestaurant, "IdTable", "IdTable");
+            ViewData["IdUtilisateur"] = new SelectList(_context.Utilisateurs, "IdUtilisateur", "Email");
+            return View();
         }
 
-        _context.Reservations.Remove(reservation);
-        await _context.SaveChangesAsync();
+        // POST: Reservations/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("IdReservation,DateRes,Heure,NombrePersonnes,ServiceSpecial,Status,IdUtilisateur,IdTable,IdRestaurant")] Reservation reservation)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(reservation);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["IdRestaurant"] = new SelectList(_context.Restaurants, "IdRestaurant", "Adresse", reservation.IdRestaurant);
+            ViewData["IdTable"] = new SelectList(_context.TablesRestaurant, "IdTable", "IdTable", reservation.IdTable);
+            ViewData["IdUtilisateur"] = new SelectList(_context.Utilisateurs, "IdUtilisateur", "Email", reservation.IdUtilisateur);
+            return View(reservation);
+        }
 
-        return NoContent();
-    }
+        // GET: Reservations/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
 
-    private bool ReservationExists(int id)
-    {
-        return _context.Reservations.Any(e => e.IdReservation == id);
+            var reservation = await _context.Reservations.FindAsync(id);
+            if (reservation == null)
+            {
+                return NotFound();
+            }
+            ViewData["IdRestaurant"] = new SelectList(_context.Restaurants, "IdRestaurant", "Adresse", reservation.IdRestaurant);
+            ViewData["IdTable"] = new SelectList(_context.TablesRestaurant, "IdTable", "IdTable", reservation.IdTable);
+            ViewData["IdUtilisateur"] = new SelectList(_context.Utilisateurs, "IdUtilisateur", "Email", reservation.IdUtilisateur);
+            return View(reservation);
+        }
+
+        // POST: Reservations/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("IdReservation,DateRes,Heure,NombrePersonnes,ServiceSpecial,Status,IdUtilisateur,IdTable,IdRestaurant")] Reservation reservation)
+        {
+            if (id != reservation.IdReservation)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(reservation);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!ReservationExists(reservation.IdReservation))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["IdRestaurant"] = new SelectList(_context.Restaurants, "IdRestaurant", "Adresse", reservation.IdRestaurant);
+            ViewData["IdTable"] = new SelectList(_context.TablesRestaurant, "IdTable", "IdTable", reservation.IdTable);
+            ViewData["IdUtilisateur"] = new SelectList(_context.Utilisateurs, "IdUtilisateur", "Email", reservation.IdUtilisateur);
+            return View(reservation);
+        }
+
+        // GET: Reservations/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var reservation = await _context.Reservations
+                .Include(r => r.Restaurant)
+                .Include(r => r.TableRestaurant)
+                .Include(r => r.Utilisateur)
+                .FirstOrDefaultAsync(m => m.IdReservation == id);
+            if (reservation == null)
+            {
+                return NotFound();
+            }
+
+            return View(reservation);
+        }
+
+        // POST: Reservations/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var reservation = await _context.Reservations.FindAsync(id);
+            if (reservation != null)
+            {
+                _context.Reservations.Remove(reservation);
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool ReservationExists(int id)
+        {
+            return _context.Reservations.Any(e => e.IdReservation == id);
+        }
     }
 }

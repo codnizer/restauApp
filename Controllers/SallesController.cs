@@ -1,105 +1,259 @@
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
-[Route("api/[controller]")]
-[ApiController]
-public class SallesController : ControllerBase
+namespace RestauApp
 {
-    private readonly ApplicationDbContext _context;
-
-    public SallesController(ApplicationDbContext context)
+    public class SallesController : Controller
     {
-        _context = context;
-    }
+        private readonly ApplicationDbContext _context;
+        private readonly ILogger<SallesController> _logger;
 
-    // GET: api/Salles
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<Salle>>> GetSalles()
-    {
-        return await _context.Salles.ToListAsync();
-    }
-
-    // GET: api/Salles/5
-    [HttpGet("{id}")]
-    public async Task<ActionResult<Salle>> GetSalle(int id)
-    {
-        var salle = await _context.Salles.FindAsync(id);
-
-        if (salle == null)
+        // Constructor injecting both context and logger
+        public SallesController(ApplicationDbContext context, ILogger<SallesController> logger)
         {
-            return NotFound();
+            _context = context;
+            _logger = logger;
         }
 
-        return salle;
-    }
-
-    // GET: api/Salles/ByRestaurant/5
-    [HttpGet("ByRestaurant/{restaurantId}")]
-    public async Task<ActionResult<IEnumerable<Salle>>> GetSallesByRestaurant(int restaurantId)
-    {
-        return await _context.Salles
-            .Where(s => s.IdRestaurant == restaurantId)
-            .ToListAsync();
-    }
-
-    // PUT: api/Salles/5
-    [HttpPut("{id}")]
-    public async Task<IActionResult> PutSalle(int id, Salle salle)
-    {
-        if (id != salle.IdSalle)
+        // GET: Salles
+        public async Task<IActionResult> Index()
         {
-            return BadRequest();
-        }
-
-        _context.Entry(salle).State = EntityState.Modified;
-
-        try
-        {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!SalleExists(id))
+            try
             {
+                var applicationDbContext = _context.Salles.Include(s => s.Restaurant);
+                return View(await applicationDbContext.ToListAsync());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while fetching the list of Salles.");
+                return View("Error");
+            }
+        }
+
+        // GET: Salles/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                _logger.LogWarning("Details page was accessed with null Id.");
                 return NotFound();
             }
-            else
+
+            try
             {
-                throw;
+                var salle = await _context.Salles
+                    .Include(s => s.Restaurant)
+                    .FirstOrDefaultAsync(m => m.IdSalle == id);
+
+                if (salle == null)
+                {
+                    _logger.LogWarning($"Salle with Id {id} not found.");
+                    return NotFound();
+                }
+
+                return View(salle);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while fetching details of Salle.");
+                return View("Error");
             }
         }
 
-        return NoContent();
-    }
-
-    // POST: api/Salles
-    [HttpPost]
-    public async Task<ActionResult<Salle>> PostSalle(Salle salle)
-    {
-        _context.Salles.Add(salle);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction("GetSalle", new { id = salle.IdSalle }, salle);
-    }
-
-    // DELETE: api/Salles/5
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteSalle(int id)
-    {
-        var salle = await _context.Salles.FindAsync(id);
-        if (salle == null)
+        // GET: Salles/Create
+        public IActionResult Create()
         {
-            return NotFound();
+            // Ensure ViewData contains a list of restaurants for the dropdown
+            try
+             
+               
+{
+    // Ensure ViewData contains a list of restaurants for the dropdown
+    ViewData["IdRestaurant"] = new SelectList(_context.Restaurants, "IdRestaurant", "Nom"); // Replace "Nom" with the property you want to display
+    return View();
+}
+               
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while fetching restaurants for the dropdown.");
+                return View("Error");
+            }
         }
 
-        _context.Salles.Remove(salle);
-        await _context.SaveChangesAsync();
-
-        return NoContent();
+        // POST: Salles/Create
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Create([Bind("IdSalle,Nom,Capacite,Type,IdRestaurant")] Salle salle)
+{
+    if (ModelState.IsValid)
+    {
+        try
+        {
+            _context.Add(salle);
+            await _context.SaveChangesAsync();
+            _logger.LogInformation($"Salle with Id {salle.IdSalle} created successfully.");
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while creating a new Salle.");
+            ModelState.AddModelError("", "An error occurred while saving the data. Please try again.");
+        }
+    }
+    else
+    {
+        _logger.LogWarning("Invalid model state when creating a new Salle.");
+        foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+        {
+            _logger.LogWarning(error.ErrorMessage);
+        }
     }
 
-    private bool SalleExists(int id)
-    {
-        return _context.Salles.Any(e => e.IdSalle == id);
+    // Ensure ViewData contains a list of restaurants for the dropdown again in case of error
+    ViewData["IdRestaurant"] = new SelectList(_context.Restaurants, "IdRestaurant", "Adresse", salle.IdRestaurant);
+    return View(salle);
+}
+
+
+        // GET: Salles/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                _logger.LogWarning("Edit page was accessed with null Id.");
+                return NotFound();
+            }
+
+            try
+            {
+                var salle = await _context.Salles.FindAsync(id);
+                if (salle == null)
+                {
+                    _logger.LogWarning($"Salle with Id {id} not found for editing.");
+                    return NotFound();
+                }
+
+                // Ensure ViewData contains a list of restaurants for the dropdown
+                ViewData["IdRestaurant"] = new SelectList(_context.Restaurants, "IdRestaurant", "Adresse", salle.IdRestaurant);
+                return View(salle);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while fetching Salle for editing.");
+                return View("Error");
+            }
+        }
+
+        // POST: Salles/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("IdSalle,Nom,Capacite,Type,IdRestaurant")] Salle salle)
+        {
+            if (id != salle.IdSalle)
+            {
+                _logger.LogWarning($"Edit action: IdSalle mismatch. Expected {id}, got {salle.IdSalle}.");
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(salle);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation($"Salle with Id {id} updated successfully.");
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!SalleExists(salle.IdSalle))
+                    {
+                        _logger.LogError($"Salle with Id {salle.IdSalle} not found during update.");
+                        return NotFound();
+                    }
+                    else
+                    {
+                        _logger.LogError("Concurrency error occurred while updating Salle.");
+                        throw;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error occurred while updating Salle.");
+                    ModelState.AddModelError("", "An error occurred while saving the data. Please try again.");
+                }
+            }
+
+            _logger.LogWarning("Invalid model state when editing Salle.");
+            // Ensure ViewData contains a list of restaurants for the dropdown again in case of error
+            ViewData["IdRestaurant"] = new SelectList(_context.Restaurants, "IdRestaurant", "Adresse", salle.IdRestaurant);
+            return View(salle);
+        }
+
+        // GET: Salles/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                _logger.LogWarning("Delete page was accessed with null Id.");
+                return NotFound();
+            }
+
+            try
+            {
+                var salle = await _context.Salles
+                    .Include(s => s.Restaurant)
+                    .FirstOrDefaultAsync(m => m.IdSalle == id);
+
+                if (salle == null)
+                {
+                    _logger.LogWarning($"Salle with Id {id} not found for deletion.");
+                    return NotFound();
+                }
+
+                return View(salle);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while fetching Salle for deletion.");
+                return View("Error");
+            }
+        }
+
+        // POST: Salles/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            try
+            {
+                var salle = await _context.Salles.FindAsync(id);
+                if (salle != null)
+                {
+                    _context.Salles.Remove(salle);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation($"Salle with Id {id} deleted successfully.");
+                }
+                else
+                {
+                    _logger.LogWarning($"Salle with Id {id} not found for deletion.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while deleting Salle.");
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool SalleExists(int id)
+        {
+            return _context.Salles.Any(e => e.IdSalle == id);
+        }
     }
 }

@@ -1,6 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 public class TableRestaurant
 {
     [Key]
@@ -13,6 +16,8 @@ public class TableRestaurant
     [ForeignKey("Salle")]
     public int IdSalle { get; set; }
 
-    public Salle Salle { get; set; }
-    public ICollection<Reservation> Reservations { get; set; }
+    public Salle? Salle { get; set; }
+
+    // ✅ Initialize this collection to avoid null reference issues
+    public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
 }

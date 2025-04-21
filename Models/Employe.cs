@@ -24,5 +24,5 @@ public class Employe
 
     public string TablesAssignees { get; set; } // Storing as JSON array or comma-separated values
 
-    public Restaurant Restaurant { get; set; }
+    public Restaurant? Restaurant { get; set; }
 }
