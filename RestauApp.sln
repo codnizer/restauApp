@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestauApp", "RestauApp.csproj", "{D463D53E-AE41-E003-2573-EE5FD14E1CF0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D463D53E-AE41-E003-2573-EE5FD14E1CF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D463D53E-AE41-E003-2573-EE5FD14E1CF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D463D53E-AE41-E003-2573-EE5FD14E1CF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D463D53E-AE41-E003-2573-EE5FD14E1CF0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8DB48EED-0CE8-47AD-8EDD-A32ADC33A4A4}
+	EndGlobalSection
+EndGlobal

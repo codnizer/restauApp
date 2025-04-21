@@ -1,0 +1,33 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome to RestauApp</h1>
+    <p>Your ultimate restaurant reservation system</p>
+    <p>Manage your restaurants, employees, and reservations all in one place.</p>
+
+    <div class="mt-4">
+        <h3>Features:</h3>
+        <ul class="list-unstyled">
+            <li><strong>Manage Restaurants:</strong> Easily add, edit, and remove restaurant details.</li>
+            <li><strong>Reservation System:</strong> Track and manage your customer reservations.</li>
+            <li><strong>Employee Management:</strong> View and manage your restaurant employees.</li>
+            <li><strong>Customer Feedback:</strong> Collect feedback and reviews from your customers.</li>
+        </ul>
+    </div>
+
+    <div class="mt-4">
+        <h3>Quick Links:</h3>
+        <ul class="list-unstyled">
+            <li><a href="@Url.Action("Index", "Restaurants")">Manage Restaurants</a></li>
+            <li><a href="@Url.Action("Index", "Employes")">Manage Employees</a></li>
+            <li><a href="@Url.Action("Index", "Reservations")">Manage Reservations</a></li>
+            <li><a href="@Url.Action("Index", "Avis")">Customer Feedback</a></li>
+        </ul>
+    </div>
+
+    <div class="mt-4">
+        <p>Learn more about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    </div>
+</div>
