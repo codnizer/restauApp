@@ -20,7 +20,6 @@ public class AuthController : Controller
     {
         return View();
     }
-
     [HttpPost("login")]
     public async Task<IActionResult> Login(string email, string password)
     {
@@ -34,11 +33,12 @@ public class AuthController : Controller
         }
 
         var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.NameIdentifier, user.IdUtilisateur.ToString()),
-            new Claim(ClaimTypes.Name, user.Nom + " " + user.Prenom),
-            new Claim(ClaimTypes.Email, user.Email)
-        };
+    {
+        new Claim(ClaimTypes.NameIdentifier, user.IdUtilisateur.ToString()),
+        new Claim(ClaimTypes.Name, user.Nom + " " + user.Prenom),
+        new Claim(ClaimTypes.Email, user.Email),
+        new Claim(ClaimTypes.Role, user.Role) // <<--- Ajout du rôle ici
+    };
 
         var identity = new ClaimsIdentity(claims, "MyCookieAuth");
         var principal = new ClaimsPrincipal(identity);
@@ -48,6 +48,7 @@ public class AuthController : Controller
         return RedirectToAction("Index", "Home");
     }
 
+
     [HttpGet("register")]
     public IActionResult Register()
     {
@@ -55,7 +56,7 @@ public class AuthController : Controller
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register(string nom, string prenom, string email, string telephone, string password)
+    public async Task<IActionResult> Register(string nom, string prenom, string email, string telephone, string password, string role)
     {
         var exists = await _context.Utilisateurs.AnyAsync(u => u.Email == email);
         if (exists)
@@ -70,8 +71,9 @@ public class AuthController : Controller
             Prenom = prenom,
             Email = email,
             Telephone = telephone,
-            MotDePasse = password, // directly storing password
-            ProgrammeFidelite = 0
+            MotDePasse = password, // Attention ici pour la sécurité
+            ProgrammeFidelite = 0,
+            Role = role
         };
 
         _context.Utilisateurs.Add(user);
@@ -80,6 +82,7 @@ public class AuthController : Controller
         return RedirectToAction("Login");
     }
 
+
     [Authorize]
     [HttpPost("logout")]
     public async Task<IActionResult> Logout()
@@ -87,4 +90,10 @@ public class AuthController : Controller
         await HttpContext.SignOutAsync("MyCookieAuth");
         return RedirectToAction("Login");
     }
+    [HttpGet("accessdenied")]
+    public IActionResult AccessDenied()
+    {
+        return View();
+    }
+
 }

@@ -1,8 +1,13 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using RestauApp.Models;
+using Microsoft.AspNetCore.Authorization;
+
+
 
 namespace RestauApp.Controllers;
+
+[Authorize (Roles = "Admin,Serveur,Hotesse")]
 
 public class HomeController : Controller
 {
