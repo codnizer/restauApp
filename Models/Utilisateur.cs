@@ -1,5 +1,5 @@
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 
 public class Utilisateur
 {
@@ -28,6 +28,10 @@ public class Utilisateur
     public string MotDePasse { get; set; }
 
     public int ProgrammeFidelite { get; set; } = 0;
+
+    [Required]
+    [StringLength(20)]
+    public string Role { get; set; }  // <<--- ajouté ici
 
     public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
     public ICollection<Avis> Avis { get; set; } = new List<Avis>();

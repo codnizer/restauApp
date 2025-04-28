@@ -4,74 +4,53 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>Liste des Réservations</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-primary">Créer une nouvelle réservation</a>
 </p>
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.DateRes)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Heure)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NombrePersonnes)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ServiceSpecial)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Status)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Utilisateur)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TableRestaurant)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Restaurant)
-            </th>
-            <th></th>
+            <th>@Html.DisplayNameFor(model => model.DateRes)</th>
+            <th>@Html.DisplayNameFor(model => model.Heure)</th>
+            <th>@Html.DisplayNameFor(model => model.NombrePersonnes)</th>
+            <th>@Html.DisplayNameFor(model => model.ServiceSpecial)</th>
+            <th>@Html.DisplayNameFor(model => model.Status)</th>
+            <th>@Html.DisplayNameFor(model => model.Utilisateur)</th>
+            <th>@Html.DisplayNameFor(model => model.TableRestaurant)</th>
+            <th>@Html.DisplayNameFor(model => model.Restaurant)</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.DateRes)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Heure)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NombrePersonnes)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ServiceSpecial)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Status)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Utilisateur.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TableRestaurant.IdTable)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Restaurant.Adresse)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.IdReservation">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.IdReservation">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.IdReservation">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.DateRes)</td>
+                <td>@Html.DisplayFor(modelItem => item.Heure)</td>
+                <td>@Html.DisplayFor(modelItem => item.NombrePersonnes)</td>
+                <td>@Html.DisplayFor(modelItem => item.ServiceSpecial)</td>
+                <td>@Html.DisplayFor(modelItem => item.Status)</td>
+                <td>@Html.DisplayFor(modelItem => item.Utilisateur.Email)</td>
+                <td>@Html.DisplayFor(modelItem => item.TableRestaurant.IdTable)</td>
+                <td>@Html.DisplayFor(modelItem => item.Restaurant.Adresse)</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.IdReservation" class="btn btn-warning btn-sm">Modifier</a>
+                    <a asp-action="Details" asp-route-id="@item.IdReservation" class="btn btn-info btn-sm">Détails</a>
+                    <a asp-action="Delete" asp-route-id="@item.IdReservation" class="btn btn-danger btn-sm">Supprimer</a>
+                    <br /><br />
+                    @if (item.Status == "en attente")
+                    {
+                        <form asp-action="Confirmer" asp-route-id="@item.IdReservation" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-success btn-sm">Confirmer</button>
+                        </form>
+                        <form asp-action="Annuler" asp-route-id="@item.IdReservation" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-outline-danger btn-sm">Annuler</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

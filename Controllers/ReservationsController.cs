@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace RestauApp
 {
+    [Authorize(Roles = "Admin,Serveur,Hotesse")]
     public class ReservationsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -170,5 +172,48 @@ namespace RestauApp
         {
             return _context.Reservations.Any(e => e.IdReservation == id);
         }
+
+        // POST: Reservations/Confirmer/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Confirmer(int id)
+        {
+            var reservation = await _context.Reservations.FindAsync(id);
+            if (reservation == null)
+            {
+                return NotFound();
+            }
+
+            if (reservation.Status == "en attente")
+            {
+                reservation.Status = "confirmée";
+                _context.Update(reservation);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // POST: Reservations/Annuler/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Annuler(int id)
+        {
+            var reservation = await _context.Reservations.FindAsync(id);
+            if (reservation == null)
+            {
+                return NotFound();
+            }
+
+            if (reservation.Status == "en attente")
+            {
+                reservation.Status = "annulée";
+                _context.Update(reservation);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
     }
 }

@@ -5,9 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RestauApp
 {
+    [Authorize(Roles = "Admin,Serveur,Hotesse")]
     public class SallesController : Controller
     {
         private readonly ApplicationDbContext _context;
