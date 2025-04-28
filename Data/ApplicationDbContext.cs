@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 
+
+
 public class ApplicationDbContext : DbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
@@ -13,6 +15,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Reservation> Reservations { get; set; }
     public DbSet<Avis> Avis { get; set; }
     public DbSet<Employe> Employes { get; set; }
+    public DbSet<Promotion> Promotions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -56,5 +59,11 @@ public class ApplicationDbContext : DbContext
             .HasOne(e => e.Restaurant)
             .WithMany(r => r.Employes)
             .HasForeignKey(e => e.IdRestaurant);
+
+        modelBuilder.Entity<Promotion>()
+            .HasOne(p => p.Restaurant)
+            .WithMany(r => r.Promotions)
+            .HasForeignKey(p => p.IdRestaurant);
+
     }
 }
