@@ -31,4 +31,5 @@ public class Restaurant
     public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
     public ICollection<Avis> Avis { get; set; } = new List<Avis>();
     public ICollection<Employe> Employes { get; set; } = new List<Employe>();
+    public ICollection<Promotion> Promotions { get; set; } = new List<Promotion>();
 }

@@ -46,7 +46,7 @@ namespace RestauApp.Migrations
 
                     b.HasIndex("IdUtilisateur");
 
-                    b.ToTable("Avis");
+                    b.ToTable("Avis", (string)null);
                 });
 
             modelBuilder.Entity("Employe", b =>
@@ -81,7 +81,7 @@ namespace RestauApp.Migrations
 
                     b.HasIndex("IdRestaurant");
 
-                    b.ToTable("Employes");
+                    b.ToTable("Employes", (string)null);
                 });
 
             modelBuilder.Entity("Reservation", b =>
@@ -126,7 +126,7 @@ namespace RestauApp.Migrations
 
                     b.HasIndex("IdUtilisateur");
 
-                    b.ToTable("Reservations");
+                    b.ToTable("Reservations", (string)null);
                 });
 
             modelBuilder.Entity("Restaurant", b =>
@@ -172,7 +172,7 @@ namespace RestauApp.Migrations
 
                     b.HasKey("IdRestaurant");
 
-                    b.ToTable("Restaurants");
+                    b.ToTable("Restaurants", (string)null);
                 });
 
             modelBuilder.Entity("Salle", b =>
@@ -201,7 +201,7 @@ namespace RestauApp.Migrations
 
                     b.HasIndex("IdRestaurant");
 
-                    b.ToTable("Salles");
+                    b.ToTable("Salles", (string)null);
                 });
 
             modelBuilder.Entity("TableRestaurant", b =>
@@ -220,7 +220,7 @@ namespace RestauApp.Migrations
 
                     b.HasIndex("IdSalle");
 
-                    b.ToTable("TablesRestaurant");
+                    b.ToTable("TablesRestaurant", (string)null);
                 });
 
             modelBuilder.Entity("Utilisateur", b =>
@@ -264,7 +264,7 @@ namespace RestauApp.Migrations
 
                     b.HasKey("IdUtilisateur");
 
-                    b.ToTable("Utilisateurs");
+                    b.ToTable("Utilisateurs", (string)null);
                 });
 
             modelBuilder.Entity("Avis", b =>
