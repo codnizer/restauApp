@@ -255,3 +255,14 @@ C:\Users\mohamed\Desktop\cc\RestauApp\obj\Debug\net8.0\refint\RestauApp.dll
 C:\Users\mohamed\Desktop\cc\RestauApp\obj\Debug\net8.0\RestauApp.pdb
 C:\Users\mohamed\Desktop\cc\RestauApp\obj\Debug\net8.0\RestauApp.genruntimeconfig.cache
 C:\Users\mohamed\Desktop\cc\RestauApp\obj\Debug\net8.0\ref\RestauApp.dll
+C:\Users\mohamed\Desktop\cc\RestauApp\obj\Debug\net8.0\RestauApp.sourcelink.json
+C:\Users\mohamed\Desktop\cc\RestauApp\bin\Debug\net8.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\Users\mohamed\Desktop\cc\RestauApp\bin\Debug\net8.0\Microsoft.Extensions.Diagnostics.Abstractions.dll
+C:\Users\mohamed\Desktop\cc\RestauApp\bin\Debug\net8.0\Microsoft.Extensions.Hosting.Abstractions.dll
+C:\Users\mohamed\Desktop\cc\RestauApp\bin\Debug\net8.0\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Users\mohamed\Desktop\cc\RestauApp\bin\Debug\net8.0\Microsoft.Extensions.ObjectPool.dll
+C:\Users\mohamed\Desktop\cc\RestauApp\bin\Debug\net8.0\Microsoft.Extensions.Options.dll
+C:\Users\mohamed\Desktop\cc\RestauApp\bin\Debug\net8.0\Microsoft.Extensions.WebEncoders.dll
+C:\Users\mohamed\Desktop\cc\RestauApp\bin\Debug\net8.0\System.Security.Cryptography.Pkcs.dll
+C:\Users\mohamed\Desktop\cc\RestauApp\bin\Debug\net8.0\System.Security.Cryptography.Xml.dll
+C:\Users\mohamed\Desktop\cc\RestauApp\bin\Debug\net8.0\runtimes\win\lib\net8.0\System.Security.Cryptography.Pkcs.dll
