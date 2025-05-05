@@ -122,6 +122,36 @@ namespace RestauApp.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "Promotions",
+                columns: table => new
+                {
+                    IdPromotion = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Title = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Description = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    StartDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    IdRestaurant = table.Column<int>(type: "int", nullable: false),
+                    DiscountPercentage = table.Column<decimal>(type: "decimal(5,2)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Promotions", x => x.IdPromotion);
+                    table.ForeignKey(
+                        name: "FK_Promotions_Restaurants_IdRestaurant",
+                        column: x => x.IdRestaurant,
+                        principalTable: "Restaurants",
+                        principalColumn: "IdRestaurant",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+
+
+
+            migrationBuilder.CreateTable(
                 name: "Avis",
                 columns: table => new
                 {
@@ -253,31 +283,24 @@ namespace RestauApp.Migrations
                 name: "IX_TablesRestaurant_IdSalle",
                 table: "TablesRestaurant",
                 column: "IdSalle");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Promotions_IdRestaurant",
+                table: "Promotions",
+                column: "IdRestaurant");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Avis");
-
-            migrationBuilder.DropTable(
-                name: "Employes");
-
-            migrationBuilder.DropTable(
-                name: "Reservations");
-
-            migrationBuilder.DropTable(
-                name: "TablesRestaurant");
-
-            migrationBuilder.DropTable(
-                name: "Utilisateurs");
-
-            migrationBuilder.DropTable(
-                name: "Salles");
-
-            migrationBuilder.DropTable(
-                name: "Restaurants");
+            migrationBuilder.DropTable(name: "Avis");
+            migrationBuilder.DropTable(name: "Employes");
+            migrationBuilder.DropTable(name: "Reservations");
+            migrationBuilder.DropTable(name: "Promotions");
+            migrationBuilder.DropTable(name: "TablesRestaurant");
+            migrationBuilder.DropTable(name: "Utilisateurs");
+            migrationBuilder.DropTable(name: "Salles");
+            migrationBuilder.DropTable(name: "Restaurants");
         }
     }
 }
