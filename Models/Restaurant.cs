@@ -9,23 +9,23 @@ public class Restaurant
 
     [Required]
     [StringLength(100)]
-    public string Nom { get; set; }
+    public required string Nom { get; set; }
 
     [Required]
-    public string Adresse { get; set; }
+    public required string Adresse { get; set; }
 
     [StringLength(20)]
-    public string Telephone { get; set; }
+    public required string Telephone { get; set; }
 
     [Required]
     [StringLength(100)]
     [EmailAddress]
-    public string Email { get; set; }
+    public required string Email { get; set; }
 
-    public string Horaires { get; set; }
-    public string Description { get; set; }
-    public string Photo { get; set; }
-    public string Menu { get; set; }
+    public required string Horaires { get; set; }
+    public required string Description { get; set; }
+    public required string Photo { get; set; }
+    public required string Menu { get; set; }
 
     public ICollection<Salle> Salles { get; set; } = new List<Salle>();
     public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();

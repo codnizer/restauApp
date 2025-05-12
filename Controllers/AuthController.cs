@@ -56,7 +56,7 @@ public class AuthController : Controller
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register(string nom, string prenom, string email, string telephone, string password, string role)
+    public async Task<IActionResult> Register(string nom, string prenom, string email, string telephone, string password, string Role)
     {
         var exists = await _context.Utilisateurs.AnyAsync(u => u.Email == email);
         if (exists)
@@ -73,7 +73,7 @@ public class AuthController : Controller
             Telephone = telephone,
             MotDePasse = password, // Attention ici pour la sécurité
             ProgrammeFidelite = 0,
-            Role = role
+            Role = "Client"
         };
 
         _context.Utilisateurs.Add(user);

@@ -1,25 +1,25 @@
-@model IEnumerable<Reservation>
+﻿@model IEnumerable<Reservation>
 
 @{
     ViewData["Title"] = "Index";
 }
 
-<h1>Liste des R�servations</h1>
+<h1>Liste des Réservations</h1>
 
 <p>
-    <a asp-action="Create" class="btn btn-primary">Cr�er une nouvelle r�servation</a>
+    <a asp-action="Create" class="btn btn-primary">Créer une nouvelle réservation</a>
 </p>
 <table class="table">
     <thead>
         <tr>
             <th>@Html.DisplayNameFor(model => model.DateRes)</th>
+            <th>@Html.DisplayNameFor(model => model.Utilisateur)</th>
             <th>@Html.DisplayNameFor(model => model.Heure)</th>
             <th>@Html.DisplayNameFor(model => model.NombrePersonnes)</th>
             <th>@Html.DisplayNameFor(model => model.ServiceSpecial)</th>
-            <th>@Html.DisplayNameFor(model => model.Status)</th>
-            <th>@Html.DisplayNameFor(model => model.Utilisateur)</th>
             <th>@Html.DisplayNameFor(model => model.TableRestaurant)</th>
-            <th>@Html.DisplayNameFor(model => model.Restaurant)</th>
+            <th>@Html.DisplayNameFor(model => model.Status)</th>
+            <th>@Html.DisplayNameFor(model => model.Arriver)</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -27,28 +27,63 @@
         @foreach (var item in Model)
         {
             <tr>
+                
                 <td>@Html.DisplayFor(modelItem => item.DateRes)</td>
+                <td>@Html.DisplayFor(modelItem => item.Utilisateur.Nom)</td>
                 <td>@Html.DisplayFor(modelItem => item.Heure)</td>
                 <td>@Html.DisplayFor(modelItem => item.NombrePersonnes)</td>
                 <td>@Html.DisplayFor(modelItem => item.ServiceSpecial)</td>
+                <td>@Html.DisplayFor(modelItem => item.TableRestaurant.Numero)</td>
                 <td>@Html.DisplayFor(modelItem => item.Status)</td>
-                <td>@Html.DisplayFor(modelItem => item.Utilisateur.Email)</td>
-                <td>@Html.DisplayFor(modelItem => item.TableRestaurant.IdTable)</td>
-                <td>@Html.DisplayFor(modelItem => item.Restaurant.Adresse)</td>
+                <td>@Html.DisplayFor(modelItem => item.Arriver)</td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.IdReservation" class="btn btn-warning btn-sm">Modifier</a>
-                    <a asp-action="Details" asp-route-id="@item.IdReservation" class="btn btn-info btn-sm">D�tails</a>
-                    <a asp-action="Delete" asp-route-id="@item.IdReservation" class="btn btn-danger btn-sm">Supprimer</a>
-                    <br /><br />
-                    @if (item.Status == "en attente")
-                    {
-                        <form asp-action="Confirmer" asp-route-id="@item.IdReservation" method="post" style="display:inline;">
-                            <button type="submit" class="btn btn-success btn-sm">Confirmer</button>
-                        </form>
-                        <form asp-action="Annuler" asp-route-id="@item.IdReservation" method="post" style="display:inline;">
-                            <button type="submit" class="btn btn-outline-danger btn-sm">Annuler</button>
-                        </form>
-                    }
+                    <div class="dropdown">
+                        <!-- Actions rapides avec icônes -->
+                        <a asp-action="Edit" asp-route-id="@item.IdReservation" class="btn btn-outline-warning btn-sm me-1" title="Modifier">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a asp-action="Details" asp-route-id="@item.IdReservation" class="btn btn-outline-info btn-sm me-1" title="Détails">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@item.IdReservation" class="btn btn-outline-danger btn-sm" title="Supprimer">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                        <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton-@item.IdReservation" data-bs-toggle="dropdown" aria-expanded="false">
+                            ⋮
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-@item.IdReservation">
+                            <li>
+                                <form asp-action="Arriver" asp-route-id="@item.IdReservation" method="post" style="display:inline;">
+                                    <button type="submit" class="dropdown-item" @(item.Arriver == "arrivé" ? "disabled" : "")>Arrivé</button>
+                                </form>
+                            </li>
+                            <li>
+                                <form asp-action="EnRetard" asp-route-id="@item.IdReservation" method="post" style="display:inline;">
+                                    <button type="submit" class="dropdown-item" @(item.Arriver == "en retard" ? "disabled" : "")>En retard</button>
+                                </form>
+                            </li>
+                            <li>
+                                <form asp-action="NonArrive" asp-route-id="@item.IdReservation" method="post" style="display:inline;">
+                                    <button type="submit" class="dropdown-item" @(item.Arriver == "non arrivé" ? "disabled" : "")>Non arrivé</button>
+                                </form>
+                            </li>
+                            <li><hr class="dropdown-divider" /></li>
+
+                            <li>
+                                <form asp-action="Confirmer" asp-route-id="@item.IdReservation" method="post" style="display:inline;">
+                                    <button type="submit" class="dropdown-item" @(item.Status != "en attente" ? "disabled" : "")>Confirmer</button>
+                                </form>
+                            </li>
+                            <li>
+                                <form asp-action="Annuler" asp-route-id="@item.IdReservation" method="post" style="display:inline;">
+                                    <button type="submit" class="dropdown-item" @(item.Status != "en attente" ? "disabled" : "")>Annuler</button>
+                                </form>
+                            </li>
+                        </ul>
+                        
+                    </div>
+                    
+               
                 </td>
             </tr>
         }

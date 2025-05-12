@@ -534,3 +534,4 @@ C:\Users\hassan\Desktop\prtjet restau\restauApp\obj\Debug\net8.0\refint\RestauAp
 C:\Users\hassan\Desktop\prtjet restau\restauApp\obj\Debug\net8.0\RestauApp.pdb
 C:\Users\hassan\Desktop\prtjet restau\restauApp\obj\Debug\net8.0\RestauApp.genruntimeconfig.cache
 C:\Users\hassan\Desktop\prtjet restau\restauApp\obj\Debug\net8.0\ref\RestauApp.dll
+C:\Users\hassan\Desktop\prtjet restau\restauApp\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

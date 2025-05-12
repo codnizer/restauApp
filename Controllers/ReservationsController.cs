@@ -51,17 +51,24 @@ namespace RestauApp
         public IActionResult Create()
         {
             ViewData["IdRestaurant"] = new SelectList(_context.Restaurants, "IdRestaurant", "Adresse");
-            ViewData["IdTable"] = new SelectList(_context.TablesRestaurant, "IdTable", "IdTable");
+            //ViewData["IdTable"] = new SelectList(new List<TableRestaurant>(), "IdTable", "IdTable"); // vide par défaut
             ViewData["IdUtilisateur"] = new SelectList(_context.Utilisateurs, "IdUtilisateur", "Email");
+            ViewData["IdTable"] = new SelectList(_context.TablesRestaurant, "IdTable", "IdTable");
+
+            // Liste des statuts possibles
+            ViewData["StatusList"] = new SelectList(new[] { "en attente", "confirmée", "annulée" });
+            ViewData["ArriverList"] = new SelectList(new[] { "non arrivé", "arrivé", "en retard" });
+
             return View();
         }
+
 
         // POST: Reservations/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("IdReservation,DateRes,Heure,NombrePersonnes,ServiceSpecial,Status,IdUtilisateur,IdTable,IdRestaurant")] Reservation reservation)
+        public async Task<IActionResult> Create([Bind("IdReservation,DateRes,Heure,NombrePersonnes,ServiceSpecial,Status,Arriver,IdUtilisateur,IdTable,IdRestaurant")] Reservation reservation)
         {
             if (ModelState.IsValid)
             {
@@ -69,9 +76,14 @@ namespace RestauApp
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["IdRestaurant"] = new SelectList(_context.Restaurants, "IdRestaurant", "Adresse", reservation.IdRestaurant);
             ViewData["IdTable"] = new SelectList(_context.TablesRestaurant, "IdTable", "IdTable", reservation.IdTable);
             ViewData["IdUtilisateur"] = new SelectList(_context.Utilisateurs, "IdUtilisateur", "Email", reservation.IdUtilisateur);
+            ViewData["StatusList"] = new SelectList(new[] { "en attente", "confirmée", "annulée" }, reservation.Status);
+            ViewData["ArriverList"] = new SelectList(new[] { "non arrivé", "arrivé", "en retard" },reservation.Arriver);
+            //ViewData["IdTable"] = GetTablesDisponibles(reservation.DateRes, reservation.Heure);
+
             return View(reservation);
         }
 
@@ -91,6 +103,11 @@ namespace RestauApp
             ViewData["IdRestaurant"] = new SelectList(_context.Restaurants, "IdRestaurant", "Adresse", reservation.IdRestaurant);
             ViewData["IdTable"] = new SelectList(_context.TablesRestaurant, "IdTable", "IdTable", reservation.IdTable);
             ViewData["IdUtilisateur"] = new SelectList(_context.Utilisateurs, "IdUtilisateur", "Email", reservation.IdUtilisateur);
+            ViewData["StatusList"] = new SelectList(new[] { "en attente", "confirmée", "annulée" }, reservation.Status);
+            ViewData["ArriverList"] = new SelectList(new[] { "non arrivé", "arrivé", "en retard" }, reservation.Arriver);
+
+            //ViewData["IdTable"] = GetTablesDisponibles(reservation.DateRes, reservation.Heure);
+
             return View(reservation);
         }
 
@@ -99,7 +116,7 @@ namespace RestauApp
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("IdReservation,DateRes,Heure,NombrePersonnes,ServiceSpecial,Status,IdUtilisateur,IdTable,IdRestaurant")] Reservation reservation)
+        public async Task<IActionResult> Edit(int id, [Bind("IdReservation,DateRes,Heure,NombrePersonnes,ServiceSpecial,Status,Arriver,IdUtilisateur,IdTable,IdRestaurant")] Reservation reservation)
         {
             if (id != reservation.IdReservation)
             {
@@ -128,7 +145,12 @@ namespace RestauApp
             }
             ViewData["IdRestaurant"] = new SelectList(_context.Restaurants, "IdRestaurant", "Adresse", reservation.IdRestaurant);
             ViewData["IdTable"] = new SelectList(_context.TablesRestaurant, "IdTable", "IdTable", reservation.IdTable);
+            ViewData["StatusList"] = new SelectList(new[] { "en attente", "confirmée", "annulée" }, reservation.Status);
             ViewData["IdUtilisateur"] = new SelectList(_context.Utilisateurs, "IdUtilisateur", "Email", reservation.IdUtilisateur);
+            ViewData["ArriverList"] = new SelectList(new[] { "non arrivé", "arrivé", "en retard" }, reservation.Arriver);
+
+            //ViewData["IdTable"] = GetTablesDisponibles(reservation.DateRes, reservation.Heure);
+
             return View(reservation);
         }
 
@@ -214,6 +236,80 @@ namespace RestauApp
 
             return RedirectToAction(nameof(Index));
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Arriver(int id)
+        {
+            var reservation = await _context.Reservations.FindAsync(id);
+            if (reservation == null)
+            {
+                return NotFound();
+            }
+
+            reservation.Arriver = "arrivé";
+            _context.Update(reservation);
+            await _context.SaveChangesAsync();
+
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+
+        public async Task<IActionResult> EnRetard(int id)
+        {
+            var reservation = await _context.Reservations.FindAsync(id);
+            if (reservation == null)
+            {
+                return NotFound();
+            }
+
+            reservation.Arriver = "en retard";
+            _context.Update(reservation);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+        [HttpPost]
+        public IActionResult NonArrive(int id)
+        {
+            var reservation = _context.Reservations.Find(id);
+            if (reservation == null)
+            {
+                return NotFound();
+            }
+
+            reservation.Arriver = "non arrivé";
+            _context.Update(reservation);
+            _context.SaveChanges();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+
+        /*
+         [HttpGet]
+         public IActionResult GetTablesDisponibles(DateTime date, TimeSpan heure)
+         {
+             var tablesReservees = _context.Reservations
+                 .Where(r => r.Status == "confirmée" && r.DateRes == date && r.Heure == heure)
+                 .Select(r => r.IdTable)
+                 .ToList();
+
+             var tablesDisponibles = _context.TablesRestaurant
+                 .Where(t => !tablesReservees.Contains(t.IdTable))
+                 .Select(t => new
+                 {
+                     id = t.IdTable,
+                     nom = $"Table {t.IdTable}"
+                 })
+                 .ToList();
+
+             return Json(tablesDisponibles);
+         }*/
+
+
 
     }
 }

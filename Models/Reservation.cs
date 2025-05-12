@@ -25,6 +25,10 @@ public class Reservation
     [StringLength(50)]
     public string Status { get; set; } = "en attente";
 
+    [Required]
+    [StringLength(100)]
+    public string Arriver { get; set; } = "non arrivé";
+
     [ForeignKey("Utilisateur")]
     public int IdUtilisateur { get; set; }
 

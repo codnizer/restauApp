@@ -9,14 +9,14 @@ public class Salle
 
     [Required]
     [StringLength(50)]
-    public string Nom { get; set; }
+    public required string Nom { get; set; }
 
     [Required]
     public int Capacite { get; set; }
 
     [Required]
     [StringLength(50)]
-    public string Type { get; set; }
+    public required string Type { get; set; }
 
     // Foreign Key for Restaurant
     [Required]  // Make sure it's required
