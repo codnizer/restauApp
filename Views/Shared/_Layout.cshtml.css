@@ -10,7 +10,16 @@ a.navbar-brand {
 a {
   color: #0077cc;
 }
-
+.form-floating > label {
+  padding: 1rem 1.25rem;
+}
+.card {
+  border-radius: 0.75rem;
+  transition: transform 0.2s;
+}
+.btn-outline-secondary:hover {
+  background-color: #f8f9fa;
+}
 .btn-primary {
   color: #fff;
   background-color: #1b6ec2;

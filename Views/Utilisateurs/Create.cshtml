@@ -1,58 +1,151 @@
 @model Utilisateur
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create User";
 }
 
-<h1>Create</h1>
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0"><i class="bi bi-person-plus me-2"></i>Create New User</h3>
+        </div>
 
-<h4>Utilisateur</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Nom" class="control-label"></label>
-                <input asp-for="Nom" class="form-control" />
-                <span asp-validation-for="Nom" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Prenom" class="control-label"></label>
-                <input asp-for="Prenom" class="form-control" />
-                <span asp-validation-for="Prenom" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Telephone" class="control-label"></label>
-                <input asp-for="Telephone" class="form-control" />
-                <span asp-validation-for="Telephone" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="MotDePasse" class="control-label"></label>
-                <input asp-for="MotDePasse" class="form-control" />
-                <span asp-validation-for="MotDePasse" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ProgrammeFidelite" class="control-label"></label>
-                <input asp-for="ProgrammeFidelite" class="form-control" />
-                <span asp-validation-for="ProgrammeFidelite" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        <div class="card-body">
+            <form asp-action="Create" class="needs-validation" novalidate>
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="row g-3">
+                    <!-- First Name -->
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input asp-for="Nom" class="form-control" placeholder=" " required />
+                            <label asp-for="Nom"><i class="bi bi-person me-2"></i>Last Name</label>
+                            <span asp-validation-for="Nom" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <!-- Last Name -->
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input asp-for="Prenom" class="form-control" placeholder=" " required />
+                            <label asp-for="Prenom"><i class="bi bi-person me-2"></i>First Name</label>
+                            <span asp-validation-for="Prenom" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="col-12">
+                        <div class="form-floating">
+                            <input asp-for="Email" type="email" class="form-control" placeholder=" " required />
+                            <label asp-for="Email"><i class="bi bi-envelope me-2"></i>Email</label>
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input asp-for="Telephone" class="form-control" placeholder=" " />
+                            <label asp-for="Telephone"><i class="bi bi-phone me-2"></i>Phone</label>
+                            <span asp-validation-for="Telephone" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <div class="input-group">
+                                <input asp-for="MotDePasse" type="password" class="form-control" placeholder=" " 
+                                       id="passwordInput" required />
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            <label asp-for="MotDePasse"><i class="bi bi-lock me-2"></i>Password</label>
+                            <span asp-validation-for="MotDePasse" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <!-- Loyalty Points -->
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input asp-for="ProgrammeFidelite" type="number" class="form-control" placeholder=" " />
+                            <label asp-for="ProgrammeFidelite"><i class="bi bi-star me-2"></i>Loyalty Points</label>
+                            <span asp-validation-for="ProgrammeFidelite" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <!-- Role Selection -->
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <select asp-for="Role" class="form-select" required>
+                                <option value="">Select Role</option>
+                                <option value="Admin">Admin</option>
+                                <option value="Serveur">Serveur</option>
+                                <option value="Hotesse">Hotesse d'accueil</option>
+                                <option value="Client">Client</option>
+                            </select>
+                            <label asp-for="Role"><i class="bi bi-person-badge me-2"></i>Role</label>
+                            <span asp-validation-for="Role" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="col-12 mt-4">
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="bi bi-person-add me-2"></i>Create User
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Back to List
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        .card {
+            border-radius: 0.75rem;
+        }
+        .form-floating > label {
+            padding: 1rem 1.25rem;
+        }
+        #togglePassword {
+            border-left: none;
+        }
+    </style>
+}
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // Password toggle
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('passwordInput');
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.querySelector('i').classList.toggle('bi-eye-slash');
+        });
+
+        // Initialize form validation
+        (() => {
+            'use strict'
+            const forms = document.querySelectorAll('.needs-validation')
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })()
+    </script>
 }
