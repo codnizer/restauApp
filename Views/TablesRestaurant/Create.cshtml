@@ -1,37 +1,100 @@
 @model TableRestaurant
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Table";
 }
 
-<h1>Create</h1>
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0"><i class="bi bi-plus-circle me-2"></i>Create New Table</h3>
+        </div>
 
-<h4>TableRestaurant</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Numero" class="control-label"></label>
-                <input asp-for="Numero" class="form-control" />
-                <span asp-validation-for="Numero" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="IdSalle" class="control-label"></label>
-                <select asp-for="IdSalle" class ="form-control" asp-items="ViewBag.IdSalle"></select>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        <div class="card-body">
+            <form asp-action="Create" class="needs-validation" novalidate>
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="row g-3">
+                    <!-- Table Number -->
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input asp-for="Numero" class="form-control" 
+                                   placeholder=" " 
+                                   required 
+                                   min="1"
+                                   data-bs-toggle="tooltip" 
+                                   title="Enter table number (must be positive)">
+                            <label asp-for="Numero"><i class="bi bi-table me-2"></i>Table Number</label>
+                            <span asp-validation-for="Numero" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <!-- Room Selection -->
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <select asp-for="IdSalle" class="form-select" 
+                                    asp-items="ViewBag.IdSalle" required>
+                                <option value="">Select Room</option>
+                            </select>
+                            <label asp-for="IdSalle"><i class="bi bi-door-open me-2"></i>Room</label>
+                            <span asp-validation-for="IdSalle" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="col-12 mt-4">
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="bi bi-save me-2"></i>Create Table
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Back to List
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        .card {
+            border-radius: 0.75rem;
+        }
+        .form-floating > label {
+            padding: 1rem 1.25rem;
+        }
+        .form-control:focus, .form-select:focus {
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+    </style>
+}
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // Initialize Bootstrap tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        tooltipTriggerList.forEach(tooltipTriggerEl => {
+            new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+
+        // Form validation
+        (() => {
+            'use strict'
+            const forms = document.querySelectorAll('.needs-validation')
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })()
+    </script>
 }

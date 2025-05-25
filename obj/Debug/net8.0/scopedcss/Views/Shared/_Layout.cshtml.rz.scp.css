@@ -10,7 +10,16 @@ a.navbar-brand[b-nyeeq56wyw] {
 a[b-nyeeq56wyw] {
   color: #0077cc;
 }
-
+.form-floating > label[b-nyeeq56wyw] {
+  padding: 1rem 1.25rem;
+}
+.card[b-nyeeq56wyw] {
+  border-radius: 0.75rem;
+  transition: transform 0.2s;
+}
+.btn-outline-secondary:hover[b-nyeeq56wyw] {
+  background-color: #f8f9fa;
+}
 .btn-primary[b-nyeeq56wyw] {
   color: #fff;
   background-color: #1b6ec2;

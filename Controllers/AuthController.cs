@@ -37,7 +37,7 @@ public class AuthController : Controller
         new Claim(ClaimTypes.NameIdentifier, user.IdUtilisateur.ToString()),
         new Claim(ClaimTypes.Name, user.Nom + " " + user.Prenom),
         new Claim(ClaimTypes.Email, user.Email),
-        new Claim(ClaimTypes.Role, user.Role) // <<--- Ajout du r�le ici
+        new Claim(ClaimTypes.Role, user.Role) // <<--- Ajout du r�le ici
     };
 
         var identity = new ClaimsIdentity(claims, "MyCookieAuth");
@@ -49,38 +49,83 @@ public class AuthController : Controller
     }
 
 
+  
+
     [HttpGet("register")]
-    public IActionResult Register()
+public IActionResult Register()
+{
+    ViewBag.Restaurants = _context.Restaurants.ToList();
+    return View();
+}
+
+[HttpPost("register")]
+public async Task<IActionResult> Register(
+    string nom, 
+    string prenom, 
+    string email, 
+    string telephone, 
+    string password, 
+    string role,
+    int? idRestaurant,
+    string tablesAssignees)
+{
+    var exists = await _context.Utilisateurs.AnyAsync(u => u.Email == email);
+    if (exists)
     {
+        ModelState.AddModelError("", "Email déjà enregistré.");
         return View();
     }
 
-    [HttpPost("register")]
-    public async Task<IActionResult> Register(string nom, string prenom, string email, string telephone, string password, string role)
+    // Validation pour les rôles employé
+    var employeeRoles = new[] { "Admin", "Serveur", "Hotesse" };
+    if (employeeRoles.Contains(role))
     {
-        var exists = await _context.Utilisateurs.AnyAsync(u => u.Email == email);
-        if (exists)
+        if (!idRestaurant.HasValue)
         {
-            ModelState.AddModelError("", "Email already registered.");
+            ModelState.AddModelError("", "Un restaurant doit être sélectionné pour ce rôle.");
             return View();
         }
+        
+        var restaurantExists = await _context.Restaurants.AnyAsync(r => r.IdRestaurant == idRestaurant);
+        if (!restaurantExists)
+        {
+            ModelState.AddModelError("", "Restaurant invalide.");
+            return View();
+        }
+    }
 
-        var user = new Utilisateur
+    // Création utilisateur
+    var user = new Utilisateur
+    {
+        Nom = nom,
+        Prenom = prenom,
+        Email = email,
+        Telephone = telephone,
+        MotDePasse = password, // À hasher en production!
+        Role = role
+    };
+
+    _context.Utilisateurs.Add(user);
+    await _context.SaveChangesAsync();
+
+    // Création employé si nécessaire
+    if (employeeRoles.Contains(role))
+    {
+        var employe = new Employe
         {
             Nom = nom,
             Prenom = prenom,
-            Email = email,
-            Telephone = telephone,
-            MotDePasse = password, // Attention ici pour la s�curit�
-            ProgrammeFidelite = 0,
-            Role = role
+            Role = role,
+            IdRestaurant = idRestaurant.Value,
+            TablesAssignees = tablesAssignees
         };
 
-        _context.Utilisateurs.Add(user);
+        _context.Employes.Add(employe);
         await _context.SaveChangesAsync();
-
-        return RedirectToAction("Login");
     }
+
+    return RedirectToAction("Login");
+}
 
 
     [Authorize]
